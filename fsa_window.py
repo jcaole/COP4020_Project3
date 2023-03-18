@@ -42,4 +42,3 @@ class FSAWindow(tk.Canvas):
                 else:
                     text_y += state_radius / 2 * math.copysign(1, math.sin(angle))
                 self.create_text(text_x, text_y, text=symbol)
-

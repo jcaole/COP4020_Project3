@@ -18,8 +18,8 @@ REM echo Running program with testfsa2.txt legal1.txt--------------
 REM py fsa.py testfsa2.txt legal1.txt
 
 
-REM echo Running program with illegal1.txt
-REM py fsa.py fsa.txt illegal1.txt
+echo Running program with illegal1.txt
+py fsa.py fsa.txt illegal1.txt
 
 
 REM echo Running program with illegal1.txt--------------

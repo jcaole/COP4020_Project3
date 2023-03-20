@@ -23,30 +23,6 @@ class FSA:
         return current_state in self.finals
 
 
-# def read_fsa_file(filename):
-#     with open(filename, 'r') as fsa_file:
-#         fsa_string = fsa_file.read().strip()
-#
-#     fsa_parts = fsa_string.split(';')
-#     num_states = int(fsa_parts[0])
-#     alphabet = fsa_parts[1].split(',')
-#     transitions = {}
-#     states = set()
-#     for trans in fsa_parts[2].split(','):
-#         parts = trans[1:-1].split(':')
-#         src_state = int(parts[0])
-#         dest_state = int(parts[1])
-#         symbol = parts[2]
-#         states.add(src_state)
-#         states.add(dest_state)
-#         if src_state not in transitions:
-#             transitions[src_state] = {}
-#         transitions[src_state][symbol] = dest_state
-#     initial_state = int(fsa_parts[3])
-#     final_states = [int(x) for x in fsa_parts[4].split(',')]
-#
-#     return FSA(states, alphabet, initial_state, final_states, transitions)
-
 def read_fsa_file(filename):
     # Open the FSA file and read its contents
     with open(filename, 'r') as fsa_file:
@@ -72,41 +48,26 @@ def read_fsa_file(filename):
     return FSA(range(num_states), alphabet, initial_state, final_states, transitions)
 
 
-def check_file(fsa_filename, error_filename):
-    # Read in the FSA file and extract its components
-    with open(fsa_filename, 'r') as fsa_file:
-        fsa_string = fsa_file.read().strip()
+def show_tokens(tokens):
+    for token in tokens[:-1]:
+        print('token - ' + token)
 
-    fsa_parts = fsa_string.split(';')
-    num_states = int(fsa_parts[0])
-    alphabet = fsa_parts[1].split(',')
-    transitions = {}
-    for trans in fsa_parts[2].split(','):
-        parts = trans[1:-1].split(':')
-        src_state = int(parts[0])
-        dest_state = int(parts[1])
-        symbol = parts[2]
-        # Create a nested dictionary for the transition function
-        if src_state not in transitions:
-            transitions[src_state] = {}
-        transitions[src_state][symbol] = dest_state
-    initial_state = int(fsa_parts[3])
-    final_states = [int(x) for x in fsa_parts[4].split(',')]
-    # Create the FSA object
-    fsa = FSA(range(num_states), alphabet, initial_state, final_states, transitions)
+
+def check_file(fsa_filename, error_filename):
+    # Read in the FSA file and create the FSA object
+    fsa = read_fsa_file(fsa_filename)
 
     # Read in the error string from the error file
     with open(error_filename, 'r') as f:
-        string = f.read().strip()
+        error_string = f.read().strip()
 
     # Check if the FSA accepts the error string
-    if fsa.accepts(string):
-        print(f'{string} is a legal string')
+    if fsa.accepts(error_string):
+        print(f'{error_string} is a legal string')
         return True
     else:
-        print(f'{string} is an illegal string')
+        print(f'{error_string} is an illegal string')
         return False
-
 
 
 if __name__ == '__main__':
@@ -118,7 +79,9 @@ if __name__ == '__main__':
     # testing output
     # print(fsa_filename)
     # print(filename)
+    # fsa = read_fsa_file(fsa_filename)
     fsa = read_fsa_file(fsa_filename)
+    # tokens = fsa.to_tokens()
     check_file(fsa_filename, filename)
 
     window = tk.Tk()

@@ -1,4 +1,9 @@
-import sys
+# File Name: fsa.py
+# Course:
+# Project:
+# Author:
+# Description:
+
 import tkinter as tk
 from fsa_window import FSAWindow
 
@@ -76,6 +81,8 @@ def parseFSAFile(fsa_file):
 
 # Main function
 if __name__ == "__main__":
+    import sys
+
     fsa_file = sys.argv[1]
     input_file = sys.argv[2]
     check_this_fsa = FSA(fsa_file, input_file)

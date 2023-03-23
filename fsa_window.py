@@ -1,66 +1,84 @@
-import math
 import tkinter as tk
 
 
-class FSAWindow(tk.Canvas):
-    def __init__(self, fsa, master=None, **kwargs):
-        super().__init__(master, **kwargs)
-        self.fsa = fsa
-        self.draw()
+# update the Y-axis value
+def update_y_axis(y):
+    return y * 100 + 100
 
-    def draw(self):
-        state_radius = 25  # radius of each state circle
-        state_distance = 100  # distance between each state
-        margin = 50  # add margin to the left and top of the canvas
-        state_coords = {}  # dictionary to store the coordinates of each state
-        for i, state in enumerate(self.fsa.states):
-            x = state_radius * 2 + margin  # set column number to 0 and add margin to the left
-            y = state_distance * i + state_radius * 2 + margin  # use i as the row number and add margin to the top
-            state_coords[state] = (x, y)
-            fill = "white"
-            # color initial state
-            if state == self.fsa.initial:
-                fill = "light green"
-            elif state in self.fsa.finals:
-                # if the state is a final state, draw an oval around it
-                self.create_oval(x - state_radius * 1.5, y - state_radius * 1.5, x + state_radius * 1.5,
-                                 y + state_radius * 1.5, width=2)
-                fill = "white"
-            # draw the state circle
-            self.create_oval(x - state_radius, y - state_radius, x + state_radius, y + state_radius, fill=fill)
-            # draw the state label
-            self.create_text(x, y, text=str(state))
 
-        for src_state, trans in self.fsa.transitions.items():
-            for symbol, dest_state in trans.items():
-                # calculate the angle between the source state and the destination state
-                src_x, src_y = state_coords[src_state]
-                dest_x, dest_y = state_coords[dest_state]
-                angle = math.atan2(dest_y - src_y, dest_x - src_x)
-                # calculate the offset from the center of the state circle to the intersection of the transition line
-                dx = state_radius * math.cos(angle)
-                dy = state_radius * math.sin(angle)
-                # calculate the start and end points of the transition line
-                x1, y1 = src_x + dx, src_y + dy
-                x2, y2 = dest_x - dx, dest_y - dy
+class FSAWindow:
+    def __init__(self, id, start, accept):
+        self.map = {}
+        self.id = id
+        self.start = start
+        self.accept = accept
+        self.y = update_y_axis
 
-                if dest_state == src_state:
-                    # draw a loopback arrow
-                    self.create_arc(x1 - state_radius, y1 - state_radius, x1 + state_radius, y1 + state_radius,
-                                    start=0, extent=260, style=tk.ARC, width=2, outline="black")
-                    # calculate the position of the transition label
-                    text_x, text_y = x1 - state_radius / 2, y1 - state_radius / 2
-                else:
-                    # draw the transition line with an arrow at the end
-                    self.create_line(x1, y1, x2, y2, arrow=tk.LAST)
-                    # calculate the position of the transition label
-                    text_x, text_y = (x1 + x2) / 2, (y1 + y2) / 2
-                    if abs(x2 - x1) < abs(y2 - y1):
-                        # if the transition is vertical, move the label to the right
-                        text_x += state_radius / 2 * math.copysign(1, math.cos(angle))
-                    else:
-                        # if the transition is horizontal, move the label up
-                        text_y += state_radius / 2 * math.copysign(1, math.sin(angle))
+    # set the transition to a state
+    def setTransition(self, input, output):
+        self.map[input] = int(output)
 
-                # draw the transition label
-                self.create_text(text_x, text_y, text=symbol)
+    # get the next state
+    def getNext(self, c):
+        return self.map.get(c, None)
+
+    # draw the lines for the FSA
+    def drawLines(self, canvas, x, diameter):
+        for i, j in self.map.items():
+            # arrow pointing to the same state
+            if abs(self.id - j) == 0:
+                canvas.create_line(
+                    x + diameter, self.y(self.id) + diameter / 4, x + (diameter * 2),
+                    self.y(self.id) - 2 * diameter, x + (diameter * 2), self.y(j) + diameter * 2,
+                    x + diameter, self.y(j), smooth=1, arrow=tk.LAST
+                )
+                canvas.create_text(x + 50, self.y(self.id), text=i)
+            # arrow pointing down
+            if abs(self.id - j) == 1:
+                canvas.create_line(
+                    x,
+                    self.y(self.id) - diameter,
+                    x,
+                    self.y(self.id) + 100 - diameter,
+                    arrow=tk.LAST
+                )
+                canvas.create_text(x + diameter - 5, self.y(self.id) + (2 * diameter), text=i)
+            # arrow pointing up
+            if abs(self.id - j) > 1:
+                global up
+                up = 0
+                temp = up
+                canvas.create_line(
+                    x,
+                    self.y(self.id),
+                    x + up - (diameter * 3),
+                    self.y(self.id),
+                    x + up - (diameter * 3),
+                    self.y(j),
+                    x - diameter,
+                    self.y(j),
+                    arrow=tk.LAST
+                )
+                canvas.create_text(x + up - (diameter * 4), ((self.y(j) - self.y(self.id)) / 2) + self.y(self.id),
+                                   text=i)
+                up = temp + 25
+
+    # draw the states of the FSA
+    def drawState(self, canvas):
+        x = 110
+        diameter = 30  # diameter
+        if self.start:
+            canvas.create_line(
+                x, self.y(self.id) - 100,
+                x, self.y(self.id) - diameter,
+                arrow=tk.LAST
+            )
+            canvas.create_text(x + diameter, self.y(self.id) - (2 * diameter), text="start")
+        self.drawLines(canvas, x, diameter)
+        if self.accept:
+            canvas.create_oval(x - diameter, self.y(self.id) - diameter, x + diameter, self.y(self.id) + diameter,
+                               fill="white", outline="green", width=2)
+        else:
+            canvas.create_oval(x - diameter, self.y(self.id) - diameter, x + diameter, self.y(self.id) + diameter,
+                               fill="white")
+        canvas.create_text(x, self.y(self.id), text=str(self.id))

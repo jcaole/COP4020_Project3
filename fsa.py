@@ -1,112 +1,88 @@
+import sys
 import tkinter as tk
-
 from fsa_window import FSAWindow
 
 
 class FSA:
-    # initialize variables
-    def __init__(self, states, alphabet, transitions, initial, finals):
-        self.states = states
-        self.alphabet = alphabet
-        self.transitions = transitions
-        self.initial = initial
-        self.finals = finals
+    state_list = []
 
-    def accepts(self, string):
-        current_state = self.initial
-        for char in string:
-            # testing character transitions to states
-            # note: f'' allows formatting in string literal
-            # print(f"checking character '{char}' at state {current_state}")
-            if char not in self.alphabet:
-                # testing character not in alphabet for fsa.txt
-                # print(f"Invalid character '{char}'")
+    def __init__(self, fsa_file, input_string):
+        self.fsa_file = fsa_file
+        self.input_string = input_string
+
+    # Read the contents of a file and remove all spaces
+    def readFile(self, fileName):
+        with open(fileName) as f:
+            return f.read().replace(" ", "")
+
+    # Traverse the FSA graph recursively and check if a given string is accepted or not
+    def accept(self, node, remainder):
+        if node is not None and len(self.state_list) > node > -1:
+            if len(remainder) == 0:
+                return self.state_list[node].accept
+            next_node = self.state_list[node].getNext(remainder[0])
+            if next_node is None:
                 return False
-            try:
-                current_state = self.transitions[current_state][char]
-            except KeyError:
-                # print(f"No transition from state {current_state} with input '{char}'")
-                return False
-        # checks to see if the string ended in a final state
-        if current_state in self.finals:
-            # print(f"Reached final state | state {current_state}")
-            return True
+            return self.accept(next_node, remainder[1:])
         else:
-            # print(f"Did not end in a final state | state: {current_state}")       # format string literal
+            print("Error")
             return False
 
+    # Check if the FSA is valid and traverse the graph to check if the input string is accepted or not
+    def checkFSA(self, numberOfStates, acceptState, startState, stateTransitions, alphabet):
+        # Create all the nodes/states in the FSA and add them to state_list
+        for i in range(numberOfStates):
+            self.state_list.append(FSAWindow(i, i == startState, i in acceptState))
 
-# parses FSA file
-def parseFSAFile(filename):
-    # Open the FSA file and read its contents
-    with open(filename, 'r') as fsa_file:
-        fsa_string = fsa_file.read().strip()
+        # Set the state transitions for each node based on the input stateTransitions list
+        for t in stateTransitions:
+            if t[2] in alphabet:
+                # Check if the state ID is valid
+                if int(t[0]) >= numberOfStates or int(t[1]) >= numberOfStates:
+                    print("State does not exist")
+                    return
+                # Set the transition for the node at index t[0]
+                self.state_list[int(t[0])].setTransition(t[2], t[1])
+            else:
+                print("Character is not valid:", t[2])
+                return
 
-    # Split the FSA string into its parts
-    fsa_parts = fsa_string.split(';')
-    num_states = int(fsa_parts[0])  # Get the number of states
-    alphabet = set(fsa_parts[1])  # Get the alphabet
-    transitions = {}
-    for trans in fsa_parts[2].split(','):  # Get the transition table
-        parts = trans[1:-1].split(':')
-        src_state = int(parts[0])
-        dest_state = int(parts[1])
-        symbol = parts[2]
-        # if a symbol is not in dictionary
-        if symbol not in alphabet:
-            raise ValueError(f"Invalid symbol '{symbol}' in transition from state {src_state} to state {dest_state}")
-        transitions.setdefault(src_state, {})[symbol] = dest_state
-    initial_state = int(fsa_parts[3])  # Get the initial state
-    final_states = [int(x) for x in fsa_parts[4].split(',')]  # Get the final states
-
-    # Create an FSA object and return it
-    return FSA(range(num_states), sorted(list(alphabet)), transitions, initial_state, final_states)
-
-
-# def show_tokens(tokens):
-#     for token in tokens[:-1]:
-#         print('token - ' + token)
-
-# method checks to see if input file is legal/illegal
-def checkFile(fsaFile, inputFile):
-    # Read in the FSA file and create the FSA object
-    fsa = parseFSAFile(fsaFile)
-
-    # Read in the strings from the input file
-    with open(inputFile, 'r') as f:
-        inputStrings = f.readlines()
-
-    # Remove whitespace characters from each error string
-    inputStrings = [checkingString for checkingString in inputStrings]
-
-    # Checks to see if the FSA accepts input string
-    for checkingString in inputStrings:
-        if fsa.accepts(checkingString):
-            print(f'{checkingString} is a legal string')  # format string literal
+        # Check if the input string is accepted by the FSA
+        input_string = self.readFile(self.input_string)
+        if self.accept(startState, input_string):
+            print(input_string + " is a Legal String")
         else:
-            print(f'{checkingString} is an illegal string')  # format string literal
+            print(input_string + " is an Illegal String")
+
+    # Display the FSA graph using tkinter
+    def displayGUI(self):
+        root = tk.Tk()
+        canvas = tk.Canvas(root, width=600, height=600, bg="white")
+        for s in self.state_list:
+            s.drawState(canvas)
+        canvas.pack()
+        root.mainloop()
 
 
-if __name__ == '__main__':
-    import sys
+def parseFSAFile(fsa_file):
+    fsa_contents = check_this_fsa.readFile(fsa_file).split(';')[:-1]
+    num_states = int(fsa_contents[0])
+    alphabet = fsa_contents[1].strip().split(',')
+    transitions = [t[1:-1].split(':') for t in fsa_contents[2].split(',')]
+    start_state = int(fsa_contents[3])
+    accept_states = [int(i) for i in fsa_contents[4].split(',')]
+    return num_states, alphabet, transitions, start_state, accept_states
 
-    fsa_filename = sys.argv[1]
-    input_filename = sys.argv[2]
 
-    # testing output
-    # print("fsa_filename: " + fsa_filename)
-    # print("filename: " + filename + "\n")
+# Main function
+if __name__ == "__main__":
+    fsa_file = sys.argv[1]
+    input_file = sys.argv[2]
+    check_this_fsa = FSA(fsa_file, input_file)
 
-    # fsa = read_fsa_file(fsa_filename)
-    fsa = parseFSAFile(fsa_filename)
-    # tokens = fsa.to_tokens()
-    checkFile(fsa_filename, input_filename)
+    # Parse the FSA file contents
+    num_states, alphabet, transitions, start_state, accept_states = parseFSAFile(check_this_fsa.fsa_file)
 
-    window = tk.Tk()
-    window.title('FSA processor')
-    canvas = FSAWindow(fsa, master=window, width=600, height=600)
-    canvas.pack(fill=tk.BOTH, expand=True)
-
-    # starting GUI event loop
-    window.mainloop()
-    print("\n")
+    # Check the FSA and display the GUI
+    check_this_fsa.checkFSA(num_states, accept_states, start_state, transitions, alphabet)
+    check_this_fsa.displayGUI()

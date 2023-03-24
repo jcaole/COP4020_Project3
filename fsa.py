@@ -8,6 +8,7 @@ import tkinter as tk
 from fsa_window import FSAWindow
 
 
+# Read the contents of a file and remove all spaces
 def readFile(fileName):
     with open(fileName) as f:
         return f.read().replace(" ", "")
@@ -19,8 +20,6 @@ class FSA:
     def __init__(self, fsa_file, input_string):
         self.fsa_file = fsa_file
         self.input_string = input_string
-
-    # Read the contents of a file and remove all spaces
 
     # Traverse the FSA graph recursively and check if a given string is accepted or not
     def accept(self, node, remainder):
@@ -35,33 +34,6 @@ class FSA:
             print("Error")
             return False
 
-    # issue with position of params
-    # def checkFSA(self, numberOfStates, alphabet, stateTransitions, startState, acceptState):
-    #     # Create all the nodes/states in the FSA and add them to state_list
-    #     for i in range(numberOfStates):
-    #         self.state_list.append(FSAWindow(i, i == startState, i in acceptState))
-    #
-    #     # Set the state transitions for each node based on the input stateTransitions list
-    #     for t in stateTransitions:
-    #         if t[2] in alphabet:
-    #             # Check if the state ID is valid
-    #             if int(t[0]) >= numberOfStates or int(t[1]) >= numberOfStates:
-    #                 print("State does not exist")
-    #                 return
-    #             # Set the transition for the node at index t[0]
-    #             self.state_list[int(t[0])].setTransition(t[2], t[1])
-    #         else:
-    #             print("Character is not valid:", t[2])
-    #             return
-    #
-    #     # Check if the input string is accepted by the FSA
-    #     input_string = readFile(self.input_string)
-    #     if self.accept(startState, input_string):
-    #         print(input_string + " is a Legal String")
-    #     else:
-    #         print(input_string + " is an Illegal String")
-
-    # Check if the FSA is valid and traverse the graph to check if the input string is accepted or not
     def checkFSA(self, numberOfStates, acceptState, startState, stateTransitions, alphabet):
         # Create all the nodes/states in the FSA and add them to state_list
         for i in range(numberOfStates):

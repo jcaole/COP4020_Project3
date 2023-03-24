@@ -16,7 +16,7 @@ class FSAWindow:
     up = 0
 
     def __init__(self, id, start, accept):
-        self.map = {}
+        self.map = {}       #
         self.id = id
         self.start = start
         self.accept = accept
@@ -24,9 +24,9 @@ class FSAWindow:
 
     # draw the states of the FSA
     def drawState(self, canvas):
-        x = 200  # margin x-axis
-        diameter = 30  # diameter of states
-        resize_oval = 1.25
+        x = 200             # margin x-axis
+        diameter = 30       # diameter of states
+        resize_oval = 1.25  # variable to adjust inner oval for accept states
         # initial state
         if self.start:
             canvas.create_line(
@@ -58,13 +58,14 @@ class FSAWindow:
 
     # draw the lines for the FSA
     def drawLines(self, canvas, x, diameter):
-        ARROW_LENGTH = diameter * 3.5
+        ARROW_LENGTH = diameter * 1.5
         ARROW_WIDTH = diameter * 2.85
         TEXT_OFFSET_SAME_STATE = 50
         UP_ARROW_OFFSET = diameter * 2
         SIDE_ARROW_OFFSET = diameter
         TEXT_OFFSET = diameter - 5
         UP_ARROW_INCREMENT = 25
+        # same_state_transition_points =
 
         for i, j in self.map.items():
             # arrow pointing to the same state

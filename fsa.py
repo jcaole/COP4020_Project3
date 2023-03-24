@@ -60,6 +60,7 @@ class FSA:
     #         print(input_string + " is a Legal String")
     #     else:
     #         print(input_string + " is an Illegal String")
+
     # Check if the FSA is valid and traverse the graph to check if the input string is accepted or not
     def checkFSA(self, numberOfStates, acceptState, startState, stateTransitions, alphabet):
         # Create all the nodes/states in the FSA and add them to state_list
@@ -95,7 +96,7 @@ class FSA:
         canvas.pack()
         root.mainloop()
 
-
+# parse method, follows fsa.txt format
 def parseFSAFile(fsa_file):
     fsa_contents = readFile(fsa_file).split(';')[:-1]
     num_states = int(fsa_contents[0])
@@ -108,7 +109,7 @@ def parseFSAFile(fsa_file):
 
 # Main function
 if __name__ == "__main__":
-    import sys
+    import sys      # needed to implement inputs arguments
 
     fsa_file = sys.argv[1]
     input_file = sys.argv[2]

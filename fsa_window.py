@@ -27,14 +27,13 @@ class FSAWindow:
         x = 200             # margin x-axis
         diameter = 30       # diameter of states
         resize_oval = 1.25  # variable to adjust inner oval for accept states
-        # initial state
+
         if self.start:
             canvas.create_line(
-                x, self.y(self.id) - 50,  # start line length
-                x, self.y(self.id) - diameter,
-                arrow=tk.LAST
+                x - 35, self.y(self.id) - 50,           # start line length, shifted left by 10 pixels
+                x - 10, self.y(self.id) - diameter,     # end line length, shifted left by 20 pixels
+                arrow=tk.LAST, width=3
             )
-            canvas.create_text(x + diameter, self.y(self.id) - (2 * diameter), text="initial")
         self.drawLines(canvas, x, diameter)
         # accept state
         if self.accept:
@@ -58,8 +57,8 @@ class FSAWindow:
 
     # draw the lines for the FSA
     def drawLines(self, canvas, x, diameter):
-        ARROW_LENGTH = diameter * 1.5
-        ARROW_WIDTH = diameter * 2.85
+        ARROW_LENGTH = diameter * 2.1
+        ARROW_WIDTH = diameter * 2.5
         TEXT_OFFSET_SAME_STATE = 50
         UP_ARROW_OFFSET = diameter * 2
         SIDE_ARROW_OFFSET = diameter
@@ -71,9 +70,11 @@ class FSAWindow:
             # arrow pointing to the same state
             if abs(self.id - j) == 0:
                 canvas.create_line(
-                    x + diameter, self.y(self.id) + diameter / 2, x + ARROW_LENGTH,
-                    self.y(self.id) - 2 * diameter, x + ARROW_WIDTH, self.y(j) + UP_ARROW_OFFSET,
-                    x + diameter, self.y(j), smooth=1, arrow=tk.LAST
+                    x + diameter, self.y(self.id) + diameter / 1.5,
+                    x + ARROW_LENGTH, self.y(self.id) - 1.5 * diameter,
+                    x + ARROW_WIDTH, self.y(j) + UP_ARROW_OFFSET,
+                    x + diameter, self.y(j),
+                    smooth="true", arrow=tk.LAST, width=2
                 )
                 canvas.create_text(x + TEXT_OFFSET_SAME_STATE, self.y(self.id), text=i)
             # arrow pointing down

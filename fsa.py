@@ -91,10 +91,12 @@ class FSA:
     def displayGUI(self):
         root = tk.Tk()
         canvas = tk.Canvas(root, width=600, height=600, bg="white")
+        root.title("FSA Processor")
         for s in self.state_list:
             s.drawState(canvas)
         canvas.pack()
         root.mainloop()
+
 
 # parse method, follows fsa.txt format
 def parseFSAFile(fsa_file):
@@ -109,7 +111,7 @@ def parseFSAFile(fsa_file):
 
 # Main function
 if __name__ == "__main__":
-    import sys      # needed to implement inputs arguments
+    import sys  # needed to implement inputs arguments
 
     fsa_file = sys.argv[1]
     input_file = sys.argv[2]

@@ -39,7 +39,7 @@ class FSA:
         for i in range(numberOfStates):
             self.state_list.append(FSAWindow(i, i == startState, i in acceptState))
 
-        # Set the state transitions for each node based on the input stateTransitions list
+        # Set the state transition for each node based on the input stateTransitions list
         for t in stateTransitions:
             if t[2] in alphabet:
                 # Check if the state ID is valid

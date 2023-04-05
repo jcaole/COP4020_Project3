@@ -1,3 +1,10 @@
+;; filename: part1.lsp
+;; Course:   COP4020
+;; Project:  4
+;; Author:   Jeremy Caole
+;; Description: hard coded program to test strings in the given FSA in theString.txt file.
+;; utilized the language Lisp
+
 (DEFUN demo ()
   (setq fp (open "theString.txt" :direction :input))
   (setq l (read fp "done"))
@@ -37,8 +44,8 @@
 (DEFUN stateThree (l)
   (cond
     ((null l) "legal")
-    ((equal 'x (car l)) (stateThree(cdr l)))
-    ((equal 'z (car l)) (stateFour(cdr l)))
+    ((equal 'x (car l)) (stateThree (cdr l)))
+    ((equal 'z (car l)) (stateFour (cdr l)))
     (t "illegal -- error caught in state 3 -- endpoint")))
 
 ;; state 4

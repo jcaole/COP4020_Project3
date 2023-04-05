@@ -4,88 +4,136 @@
 # Author:       Jeremy Caole
 # Description:  FSA class, parses, checks and main method
 
+from filereader import FileReader
+from transitions import Transitions
+from lispmaker import LispMaker
+
 
 # Read the contents of a file and remove all spaces
-def readFile(fileName):
+def readFile(self, fileName):
     with open(fileName) as f:
-        return f.read().replace(" ", "")
+        content = f.readline()
+    self.input = content
+    f.close()
 
 
 class FSA:
     state_list = []
 
-    def __init__(self, fsa_file, input_string):
-        self.fsa_file = fsa_file
-        self.input_string = input_string
+    def __init__(self, stateNum, alphabet, stateTransitons, startState, acceptStates):
+        self.stateNum = stateNum
+        self.alphabet = alphabet
+        self.stateTransitons = stateTransitons
+        self.startState = startState
+        self.acceptStates = acceptStates
+        self.currentState = int(self.startState)
+        self.transitionArray = []
+        self.transitionsValid = True
 
-    # NOTE: this is already recursive method
     # Traverse the FSA graph recursively and check if a given string is accepted or not
-    def accept(self, node, remainder):
-        if node is not None and len(self.state_list) > node > -1:
-            if len(remainder) == 0:
-                return self.state_list[node].accept
-            next_node = self.state_list[node].getNext(remainder[0])
-            if next_node is None:
-                return False
-            return self.accept(next_node, remainder[1:])
+    def makeTransitions(self):
+        for transition in self.stateTransitons:
+            transition_param = transition.split(':')
+
+            if (((int(transition_param[0]) < 0) or (int(transition_param[0]) >= self.stateNum)) or (
+                    (int(transition_param[1]) < 0) or (int(transition_param[1]) >= self.stateNum))):
+                self.transitionsValid = False
+
+            self.transitionArray.append(
+                Transitions(transition_param[0], transition_param[1], transition_param[2]))
+
+    def showStateTransitions(self):
+        for i in range(0, len(self.stateTransitons)):
+            print('State transition - ' + self.stateTransitons[i])
+
+    def checkInAlpha(self, letter):
+        for i in range(0, len(self.alphabet)):
+            if letter == self.alphabet[i]:
+                return True
+        return False
+
+    def runFSA(self):
+        self.makeTransitions()
+        roundNum = 0
+
+        for letter in self.input:
+            roundNum = roundNum + 1
+            if not self.checkInAlpha(letter):
+                print("Invalid letter. Input String %s is not accepted!" % self.getFileInput())
+                return
+
+            for i in range(0, len(self.transitionArray)):
+                if not self.checkState(self.transitionArray[i]):
+                    return
+                if self.checkTransition(self.transitionArray[i], letter):
+                    break
+
+        self.checkForAcceptState()
+
+    def runLispMaker(self):
+        lispMaker = LispMaker(self.stateNum, self.alphabet, self.stateTransitons, self.transitionArray, self.startState,
+                              self.acceptStates)
+        lispMaker.writeFile()
+
+    def checkForAcceptState(self):
+
+        if not self.transitionsValid:
+            print("Invalid State or Transition, input %s is not accepted!" % self.getFileInput())
+            return
+
+        for state in self.getAcceptStates():
+            if self.currentState == int(state):
+                print("Input String %s accepted!" % self.getFileInput())
+                return True
+            else:
+                pass
+        print("Input String %s not accepted!" % self.getFileInput())
+        return False
+
+    def checkState(self, transition):
+        if not transition.isStateValid(self.stateNum):
+            return False
+        return True
+
+    def checkTransition(self, transition, letter):
+        if transition.isTransitionValid(self.currentState, letter):
+            self.currentState = transition.getNextState()
+            return True
         else:
-            print("Error")
             return False
 
-    def checkFSA(self, numberOfStates, acceptState, startState, stateTransitions, alphabet):
-        # Create a dictionary to represent the state transitions
-        transitions = {}
-        for t in stateTransitions:
-            if t[2] in alphabet:
-                # Check if the state ID is valid
-                if int(t[0]) >= numberOfStates or int(t[1]) >= numberOfStates:
-                    print("State does not exist")
-                    return
-                # Set the transition for the current state and input symbol
-                transitions[(int(t[0]), t[2])] = int(t[1])
-            else:
-                print("Character is not valid:", t[2])
-                return
+    def getStateNum(self):
+        return self.stateNum
 
-        # Store the accept states in a set
-        accept_states = set(acceptState)
+    def getAlphabet(self):
+        return self.alphabet
 
-        # Check if the input string is accepted by the FSA
-        input_string = readFile(self.input_string)
-        current_state = startState
-        for symbol in input_string:
-            if (current_state, symbol) in transitions:
-                current_state = transitions[(current_state, symbol)]
-            else:
-                # test to check if method finds the correct invalid symbol
-                print("Invalid symbol:", symbol)
-                print(input_string + " is an Illegal String")
-                return
-        if current_state in accept_states:
-            print(input_string + " is a Legal String")
+    def getStateTransitions(self):
+        return self.stateTransitons
 
+    def getTransitionArray(self):
+        return self.transitionArray
 
-# parse method, follows fsa.txt format
-def parseFSAFile(fsa_file):
-    fsa_contents = readFile(fsa_file).split(';')[:-1]
-    num_states = int(fsa_contents[0])
-    alphabet = fsa_contents[1].strip().split(',')
-    transitions = [t[1:-1].split(':') for t in fsa_contents[2].split(',')]
-    start_state = int(fsa_contents[3])
-    accept_states = [int(i) for i in fsa_contents[4].split(',')]
-    return num_states, alphabet, transitions, start_state, accept_states
+    def getStartState(self):
+        return self.startState
+
+    def getAcceptStates(self):
+        return self.acceptStates
+
+    def getFileInput(self):
+        return self.input
 
 
 # Main function
 if __name__ == "__main__":
     import sys  # needed to implement inputs arguments
 
-    fsa_file = sys.argv[1]
-    input_file = sys.argv[2]
-    check_this_fsa = FSA(fsa_file, input_file)
+    reader = FileReader(sys.argv[1])
+    reader.run()
 
-    # Parse the FSA file contents
-    num_states, alphabet, transitions, start_state, accept_states = parseFSAFile(check_this_fsa.fsa_file)
+    fsa = FSA(reader.getStateNum(), reader.getAlphabet(), reader.getTransitionStates(), reader.getStartState(),
+              reader.getAcceptStates())
 
-    # Check the FSA
-    check_this_fsa.checkFSA(num_states, accept_states, start_state, transitions, alphabet)
+    fsa.makeTransitions()
+
+    fsa.runLispMaker()

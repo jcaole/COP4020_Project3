@@ -1,4 +1,20 @@
-class LispMaker:
+# File Name:    lisp_fsa_gen.py
+# Course:       COP4020
+# Project:      4
+# Author:       Jeremy Caole
+# Description:  Lisp FSA generator class.
+
+def writeDemo(fp):
+    fp.write('(DEFUN demo()\n')
+    fp.write('\t(setq fp (open "theString.txt" :direction :input))\n')
+    fp.write('\t(setq list (read fp "done"))\n')
+    fp.write('\t(princ "processing ")\n')
+    fp.write('\t(princ list)\n')
+    fp.write('\t(fsa list)\n')
+    fp.write(')\n\n')
+
+
+class LispFSAGenerator:
 
     def __init__(self):
         print("")
@@ -14,20 +30,11 @@ class LispMaker:
 
     def writeFile(self):
         with open('part2.lsp', 'w') as fp:
-            self.writeDemo(fp)
-            self.writeFSAFun(fp)
+            writeDemo(fp)
+            self.writeFSA(fp)
             self.writeStates(fp)
 
-    def writeDemo(self, fp):
-        fp.write('(DEFUN demo()\n')
-        fp.write('\t(setq fp (open "theString.txt" :direction :input))\n')
-        fp.write('\t(setq list (read fp "done"))\n')
-        fp.write('\t(princ "processing ")\n')
-        fp.write('\t(princ list)\n')
-        fp.write('\t(fsa list)\n')
-        fp.write(')\n\n')
-
-    def writeFSAFun(self, fp):
+    def writeFSA(self, fp):
         fp.write('(DEFUN fsa(list)\n')
         fp.write('\t(cond \n')
         fp.write('\t\t((null list) "illegal")\n')
@@ -42,7 +49,7 @@ class LispMaker:
             if self.checkAcceptState(i) == 1:
                 fp.write(f'\t\t((null list) "legal")\n')
             else:
-                fp.write(f'\t\t((null list) "illegal -- error caught in state {i} -- null")\n')
+                fp.write(f'\t\t((null list) "illegal character in state {i}")\n')
 
             self.writeTransitionCode(i, fp)
 
@@ -59,4 +66,5 @@ class LispMaker:
         for transitions in self.transitionArray:
             if i == transitions.getStartState():
                 fp.write(
-                    f'\t\t((equal \'{transitions.getTransitionChar()} (car list)) (state{transitions.getNextState()}(cdr list)))\n')
+                    f'\t\t((equal \'{transitions.getTransitionCharacter()} (car list)) (state{transitions.getNextState()}(cdr list)))\n')
+        fp.write(f'\t\t(t "illegal character in state {i}")\n')

@@ -1,4 +1,4 @@
-echo run python fsa.py fsa.txt
+echo run python lisp_fsa_gen.py fsa.txt
 python fsa.py fsa.txt
 
 echo run timeout for 2 seconds

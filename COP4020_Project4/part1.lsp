@@ -23,14 +23,14 @@
     ((null l) "illegal -- error caught in state 0 -- null")
     ((equal 'x (car l)) (stateZero (cdr l)))
     ((equal 'y (car l)) (stateOne (cdr l)))
-    (t "illegal -- error caught in state 0 -- endpoint")))
+    (t "illegal character in state 0 -- error caught in state 0 -- endpoint")))
 
 ;; state 1
 (DEFUN stateOne (l)
   (cond
     ((null l) "legal")
     ((equal 'x (car l)) (stateTwo (cdr l)))
-    (t "illegal -- error caught in state 1 -- endpoint")))
+    (t "illegal character in state 1 -- error caught in state 1 -- endpoint")))
 
 ;; state 2
 (DEFUN stateTwo (l)
@@ -38,7 +38,7 @@
     ((null l) "illegal -- error caught in state 2 -- null")
     ((equal 'x (car l)) (stateTwo (cdr l)))
     ((equal 'y (car l)) (stateThree (cdr l)))
-    (t "illegal -- error caught in state 2 -- endpoint")))
+    (t "illegal character in state 2 -- error caught in state 2 -- endpoint")))
 
 ;; state 3
 (DEFUN stateThree (l)
@@ -46,7 +46,7 @@
     ((null l) "legal")
     ((equal 'x (car l)) (stateThree (cdr l)))
     ((equal 'z (car l)) (stateFour (cdr l)))
-    (t "illegal -- error caught in state 3 -- endpoint")))
+    (t "illegal character in state 3 -- error caught in state 3 -- endpoint")))
 
 ;; state 4
 (DEFUN stateFour (l)
@@ -54,4 +54,4 @@
     ((null l) "illegal -- error caught in state 4 -- null")
     ((equal 'x (car l)) (stateFour (cdr l)))
     ((equal 'a (car l)) (stateOne (cdr l)))
-    (t "illegal -- error caught in state 4 -- endpoint")))
+    (t "illegal character in state 4 -- error caught in state 4 -- endpoint")))

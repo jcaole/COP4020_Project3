@@ -6,13 +6,13 @@
 
 from filereader import FileReader
 from transitions import Transitions
-from lispmaker import LispMaker
+from lisp_fsa_gen import LispFSAGenerator
 
 
-# Read the contents of a file and remove all spaces
+# Read the contents of a file
 def readFile(self, fileName):
     with open(fileName) as f:
-        content = f.readline()
+        content = f.read()
     self.input = content
     f.close()
 
@@ -20,31 +20,33 @@ def readFile(self, fileName):
 class FSA:
     state_list = []
 
-    def __init__(self, stateNum, alphabet, stateTransitons, startState, acceptStates):
-        self.stateNum = stateNum
+    def __init__(self, stateNum, alphabet, stateTransitions, startState, acceptStates):
+        self.currentState = None
+        self.input = None
+        self.state_num = stateNum
         self.alphabet = alphabet
-        self.stateTransitons = stateTransitons
-        self.startState = startState
-        self.acceptStates = acceptStates
-        self.currentState = int(self.startState)
-        self.transitionArray = []
-        self.transitionsValid = True
+        self.state_transitions = stateTransitions
+        self.start_state = startState
+        self.accept_states = acceptStates
+        self.current_state = int(self.start_state)
+        self.transition_array = []
+        self.valid_transition = True
 
     # Traverse the FSA graph recursively and check if a given string is accepted or not
     def makeTransitions(self):
-        for transition in self.stateTransitons:
+        for transition in self.state_transitions:
             transition_param = transition.split(':')
 
-            if (((int(transition_param[0]) < 0) or (int(transition_param[0]) >= self.stateNum)) or (
-                    (int(transition_param[1]) < 0) or (int(transition_param[1]) >= self.stateNum))):
-                self.transitionsValid = False
+            if (((int(transition_param[0]) < 0) or (int(transition_param[0]) >= self.state_num)) or (
+                    (int(transition_param[1]) < 0) or (int(transition_param[1]) >= self.state_num))):
+                self.valid_transition = False
 
-            self.transitionArray.append(
+            self.transition_array.append(
                 Transitions(transition_param[0], transition_param[1], transition_param[2]))
 
     def showStateTransitions(self):
-        for i in range(0, len(self.stateTransitons)):
-            print('State transition - ' + self.stateTransitons[i])
+        for i in range(0, len(self.state_transitions)):
+            print('State transition - ' + self.state_transitions[i])
 
     def checkInAlpha(self, letter):
         for i in range(0, len(self.alphabet)):
@@ -54,71 +56,72 @@ class FSA:
 
     def runFSA(self):
         self.makeTransitions()
-        roundNum = 0
+        round_num = 0
 
         for letter in self.input:
-            roundNum = roundNum + 1
+            round_num = round_num + 1
             if not self.checkInAlpha(letter):
-                print("Invalid letter. Input String %s is not accepted!" % self.getFileInput())
+                print("Invalid character. Input String %s is Illegal!" % self.getFileInput())
                 return
 
-            for i in range(0, len(self.transitionArray)):
-                if not self.checkState(self.transitionArray[i]):
+            for i in range(0, len(self.transition_array)):
+                if not self.checkState(self.transition_array[i]):
                     return
-                if self.checkTransition(self.transitionArray[i], letter):
+                if self.checkTransition(self.transition_array[i], letter):
                     break
 
         self.checkForAcceptState()
 
-    def runLispMaker(self):
-        lispMaker = LispMaker(self.stateNum, self.alphabet, self.stateTransitons, self.transitionArray, self.startState,
-                              self.acceptStates)
-        lispMaker.writeFile()
+    def runLispFSAGenerator(self):
+        lisp_gen = LispFSAGenerator(self.state_num, self.alphabet, self.state_transitions, self.transition_array,
+                                    self.start_state,
+                                    self.accept_states)
+        lisp_gen.writeFile()
 
     def checkForAcceptState(self):
 
-        if not self.transitionsValid:
+        if not self.valid_transition:
             print("Invalid State or Transition, input %s is not accepted!" % self.getFileInput())
             return
 
         for state in self.getAcceptStates():
             if self.currentState == int(state):
-                print("Input String %s accepted!" % self.getFileInput())
+                print("legal!" % self.getFileInput())
                 return True
             else:
                 pass
-        print("Input String %s not accepted!" % self.getFileInput())
+        print("illegal!" % self.getFileInput())
         return False
 
     def checkState(self, transition):
-        if not transition.isStateValid(self.stateNum):
+        if not transition.isStateValid(self.state_num):
             return False
         return True
 
     def checkTransition(self, transition, letter):
-        if transition.isTransitionValid(self.currentState, letter):
+        if transition.isTransitionValid(self.current_state, letter):
             self.currentState = transition.getNextState()
             return True
         else:
             return False
 
     def getStateNum(self):
-        return self.stateNum
+        return self.state_num
 
     def getAlphabet(self):
         return self.alphabet
 
     def getStateTransitions(self):
-        return self.stateTransitons
+        return self.state_transitions
 
     def getTransitionArray(self):
-        return self.transitionArray
+        return self.transition_array
 
     def getStartState(self):
-        return self.startState
+        return self.start_state
 
     def getAcceptStates(self):
-        return self.acceptStates
+        return self.accept_states
 
     def getFileInput(self):
         return self.input
@@ -136,4 +139,4 @@ if __name__ == "__main__":
 
     fsa.makeTransitions()
 
-    fsa.runLispMaker()
+    fsa.runLispFSAGenerator()

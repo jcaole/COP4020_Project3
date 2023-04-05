@@ -1,15 +1,22 @@
-class FileReader:
-    fsaname = ''
+# File Name:    filereader.py
+# Course:       COP4020
+# Project:      4
+# Author:       Jeremy Caole
+# Description:  reads file and tokenizes the content of the file
 
-    def __init__(self, fsaname):
-        self.fsaname = fsaname
+class FileReader:
+    fsa_name = ''
+
+    def __init__(self, fsa_name):
+        self.fsa_name = fsa_name
+        self.tokens = []
 
     def read(self):
-        with open(self.fsaname) as f:
-            content = f.readline()
-        print('the FSA: ' + content)
-        global tokens
-        self.tokens = content.split(';')
+        with open(self.fsa_name) as f:
+            file_to_read = f.readline()
+        #     check file output
+        print('Reading FSA: ' + file_to_read)
+        self.tokens = file_to_read.split(';')
         f.close()
 
     def showTokens(self):
@@ -17,11 +24,11 @@ class FileReader:
             print('token - ' + self.tokens[i])
 
     def setStrings(self):
-        self.stateNumString = self.tokens[0]
-        self.alphabetString = self.tokens[1]
-        self.transitionString = self.tokens[2]
-        self.startStateString = self.tokens[3]
-        self.acceptStateString = self.tokens[4]
+        self.state_num_string = self.tokens[0]
+        self.alphabet_string = self.tokens[1]
+        self.transition_string = self.tokens[2]
+        self.start_state = self.tokens[3]
+        self.accept_state = self.tokens[4]
 
     def tokenizeString(self):
         self.tokenizeAlphabet()
@@ -29,30 +36,30 @@ class FileReader:
         self.tokenizeAcceptState()
 
     def tokenizeTransition(self):
-        self.transitionString = self.transitionString.replace('(', '')
-        self.transitionString = self.transitionString.replace(')', '')
-        self.transitionTokens = self.transitionString.split(',')
+        self.transition_string = self.transition_string.replace('(', '')
+        self.transition_string = self.transition_string.replace(')', '')
+        self.transition_tokens = self.transition_string.split(',')
 
     def tokenizeAlphabet(self):
-        self.alphabetTokens = self.alphabetString.split(',')
+        self.alphabetTokens = self.alphabet_string.split(',')
 
         for i in range(0, len(self.alphabetTokens)):
             self.alphabetTokens[i] = self.alphabetTokens[i].strip()
 
     def tokenizeAcceptState(self):
-        self.acceptTokens = self.acceptStateString.split(',')
+        self.acceptTokens = self.accept_state.split(',')
 
     def getStateNum(self):
-        return int(self.stateNumString)
+        return int(self.state_num_string)
 
     def getAlphabet(self):
         return self.alphabetTokens
 
     def getTransitionStates(self):
-        return self.transitionTokens
+        return self.transition_tokens
 
     def getStartState(self):
-        return self.startStateString
+        return self.start_state
 
     def getAcceptStates(self):
         return self.acceptTokens

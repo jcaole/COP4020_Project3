@@ -1,11 +1,11 @@
-# File Name:    filereader.py
+# File Name:    file_reader.py
 # Course:       COP4020
 # Project:      4
 # Author:       Jeremy Caole
 # Description:  reads file and tokenizes the content of the file
 
 class FileReader:
-    def __init__(self, fsaName):
+    def __init__(self, file):
         self.acceptTokens = None
         self.alphabetTokens = None
         self.transition_tokens = None
@@ -14,12 +14,17 @@ class FileReader:
         self.transition_string = None
         self.alphabet_string = None
         self.state_num_string = None
-        self.fsa_name = fsaName
+        self.fsa_file = file
         self.tokens = []
 
     def read(self):
-        with open(self.fsa_name) as f:
+        with open(self.fsa_file) as f:
             file_to_read = f.read()
+            # TEST: checking the file
+            # print(fsa_file)
+            # TEST: checking the contents of the file
+            # print(file_to_read)
+            print("Reading FSA")
         # Split the file contents by semicolons to get tokens
         self.tokens = file_to_read.split(';')
         # Close the file

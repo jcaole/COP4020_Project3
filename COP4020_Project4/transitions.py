@@ -1,10 +1,10 @@
-# File Name:    fsa.py
+# File Name:    transitions.py
 # Course:       COP4020
 # Project:      4
 # Author:       Jeremy Caole
-# Description:  FSA class, parses, checks and main method
+# Description:  represents the state transition for fsa. checks transition, gets start, next,
+# and transition character (alphabet)
 
-# Define the Transitions class, representing a state transition
 class Transitions:
     def __init__(self, startState, nextState, transitionCharacter):
         # Initialize variables
@@ -45,7 +45,7 @@ def checkTransitionsHelper(transitions, current_state, char):
         return checkTransitionsHelper(transitions[1:], current_state, char)
 
 
-def checkTransitions(transitions, current_state, char):
+def cheTransitions(transitions, current_state, char):
     # Call the helper function to validate transitions
     return checkTransitionsHelper(transitions, current_state, char)
 

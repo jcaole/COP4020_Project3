@@ -48,10 +48,10 @@ class LispFSAGenerator:
     # write states to lisp program
     def writeStates(self, fp):
         # write lisp code for each state
-        self.writeRecursiveState(0, fp)
+        self.writeStateHelper(0, fp)
 
     # attempt on recursion, write lisp code for each state
-    def writeRecursiveState(self, i, fp):
+    def writeStateHelper(self, i, fp):
         # once all code is written, return
         if i == self.state_num:
             return
@@ -65,13 +65,13 @@ class LispFSAGenerator:
             fp.write(f'\t\t((null l) "illegal character in state {i}")\n')
 
         # write lisp code for state transitions
-        self.writeTransitionCode(i, fp)
+        self.writeLispTransition(i, fp)
 
         fp.write('\t)\n')
         fp.write(')\n\n')
 
         # attempt on recursion, next state
-        self.writeRecursiveState(i + 1, fp)
+        self.writeStateHelper(i + 1, fp)
 
     # check to see if state is in an accept state
     def checkAcceptState(self, i):
@@ -81,11 +81,11 @@ class LispFSAGenerator:
         return 0
 
     # write lisp code for state transistions
-    def writeTransitionCode(self, i, fp):
+    def writeLispTransition(self, i, fp):
         for transitions in self.transition_array:
-            if i == transitions.getStartState():
+            if i == transitions.getCurrent():
                 fp.write(
-                    f'\t\t((equal \'{transitions.getTransitionCharacter()} (car l)) (state{transitions.getNextState()}(cdr l)))\n')
+                    f'\t\t((equal \'{transitions.getTransition()} (car l)) (state{transitions.getNext()}(cdr l)))\n')
         fp.write(f'\t\t(t "illegal character in state {i}")\n')
 
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     # theString.txt
     file_reader = FileReader(sys.argv[1])
-    file_reader.run()
+    file_reader.readFile()
 
     # fsa.txt
     fsa = FSA(file_reader.getStateNum(), file_reader.getAlphabet(), file_reader.getTransitionStates(),

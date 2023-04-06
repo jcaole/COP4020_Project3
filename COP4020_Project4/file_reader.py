@@ -18,19 +18,24 @@ class FileReader:
         self.tokens = []
 
     def read(self):
-        with open(self.fsa_file) as f:
-            file_to_read = f.read()
-            # TEST: checking the file
-            # print(fsa_file)
-            # TEST: checking the contents of the file
-            # print(file_to_read)
-            print("Reading FSA")
-        # Split the file contents by semicolons to get tokens
-        self.tokens = file_to_read.split(';')
-        # Close the file
-        f.close()
+        try:
+            with open(self.fsa_file) as f:
+                file_to_read = f.read()
+                # TEST: checking the file
+                # print(fsa_file)
+                # TEST: checking the contents of the file
+                # print(file_to_read)
+                print("Reading FSA")
+            # Split the file contents by semicolons to get tokens
+            self.tokens = file_to_read.split(';')
+            # Close the file
+            f.close()
+        except FileNotFoundError:
+            print("Error. File not found.")
+            self.fsa_file = input()
+            self.read()
 
-    # Show the tokens from theString.txt
+    # given code from tokenize.py
     def showTokens(self):
         for i in range(0, len(self.tokens) - 1):
             print('token - ' + self.tokens[i])
@@ -43,16 +48,21 @@ class FileReader:
 
     # Split the transition list into tokens
     def tokenizeTransition(self):
+        # replace parentheses with empty
         self.transition_string = self.transition_string.replace('(', '')
         self.transition_string = self.transition_string.replace(')', '')
+
         self.transition_tokens = self.transition_string.split(',')
+        # checks if no transition is made
+        if len(self.transition_tokens) == 1 and self.transition_tokens[0] == '':
+            self.transition_tokens = []
 
     # Split the alphabet string into tokens
     def tokenizeAlphabet(self):
         self.alphabetTokens = self.alphabet_string.split(',')
 
         for i in range(0, len(self.alphabetTokens)):
-            self.alphabetTokens[i] = self.alphabetTokens[i].strip()
+            self.alphabetTokens[i] = self.alphabetTokens[i]
 
     # Split the accept state string tokens
     def tokenizeAccept(self):
@@ -83,7 +93,7 @@ class FileReader:
         return self.acceptTokens
 
     #  run method, runs the methods of the class.
-    def run(self):
+    def readFile(self):
         self.read()
         self.setStrings()
         self.tokenizer()

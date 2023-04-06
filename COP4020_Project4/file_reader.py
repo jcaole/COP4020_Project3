@@ -35,19 +35,11 @@ class FileReader:
         for i in range(0, len(self.tokens) - 1):
             print('token - ' + self.tokens[i])
 
-    # Split the tokens into separate strings for each variable
-    def setStrings(self):
-        self.state_num_string = self.tokens[0]
-        self.alphabet_string = self.tokens[1]
-        self.transition_string = self.tokens[2]
-        self.start_state = self.tokens[3]
-        self.accept_state = self.tokens[4]
-
     # Tokenize strings the variables
-    def tokenizeString(self):
+    def tokenizer(self):
         self.tokenizeAlphabet()
         self.tokenizeTransition()
-        self.tokenizeAcceptState()
+        self.tokenizeAccept()
 
     # Split the transition list into tokens
     def tokenizeTransition(self):
@@ -63,8 +55,16 @@ class FileReader:
             self.alphabetTokens[i] = self.alphabetTokens[i].strip()
 
     # Split the accept state string tokens
-    def tokenizeAcceptState(self):
+    def tokenizeAccept(self):
         self.acceptTokens = self.accept_state.split(',')
+
+    # Split the tokens into separate strings for each variable
+    def setStrings(self):
+        self.state_num_string = self.tokens[0]
+        self.alphabet_string = self.tokens[1]
+        self.transition_string = self.tokens[2]
+        self.start_state = self.tokens[3]
+        self.accept_state = self.tokens[4]
 
     # -----------Getters------------
     def getStateNum(self):
@@ -86,4 +86,4 @@ class FileReader:
     def run(self):
         self.read()
         self.setStrings()
-        self.tokenizeString()
+        self.tokenizer()

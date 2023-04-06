@@ -92,7 +92,7 @@ class FileReader:
     def getAcceptStates(self):
         return self.acceptTokens
 
-    #  run method, runs the methods of the class.
+    # runs the methods of the class.
     def readFile(self):
         self.read()
         self.setStrings()
